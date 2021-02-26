@@ -19,6 +19,5 @@ public class SimiApplication {
         return new ModelMapper();
     }
 
-//    porte da non usare 8080,9090,3310,3320,3306 <2000
 
 }
