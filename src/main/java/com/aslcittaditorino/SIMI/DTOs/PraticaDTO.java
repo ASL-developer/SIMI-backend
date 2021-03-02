@@ -16,4 +16,5 @@ public class PraticaDTO {
     private Date dataSimi;
     private String stato;
 
+
 }
