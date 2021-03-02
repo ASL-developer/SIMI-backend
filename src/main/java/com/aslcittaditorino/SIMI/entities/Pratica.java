@@ -1,6 +1,7 @@
 package com.aslcittaditorino.SIMI.entities;
 
 import lombok.Data;
+import org.hibernate.type.BlobType;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -37,4 +38,6 @@ public class Pratica {
 
     @OneToMany(mappedBy="pratica")
     private List<Provvedimento> provvedimenti;
+
+    private BlobType pdf;
 }

@@ -3,5 +3,5 @@ package com.aslcittaditorino.SIMI.services;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ProvvedimentoServiceImpl implements MorsicaturaService {
+public class ProvvedimentoServiceImpl implements ProvvedimentoService {
 }

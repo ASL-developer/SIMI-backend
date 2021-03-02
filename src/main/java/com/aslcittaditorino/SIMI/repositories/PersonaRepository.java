@@ -13,6 +13,4 @@ import java.util.List;
 
 @Repository
 public interface PersonaRepository extends JpaRepository<Persona,String> {
-
-
 }
