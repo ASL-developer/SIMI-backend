@@ -20,5 +20,6 @@ public class Diagnosi {
     private boolean risolta;
     private Date dataRisoluzione;
 
+    private String stocazzo;
 
 }
