@@ -1,16 +1,15 @@
-package com.aslcittaditorino.SIMI.entities;
+package com.aslcittaditorino.SIMI.DTOs;
 
+import com.aslcittaditorino.SIMI.entities.Pratica;
 import lombok.Data;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import java.util.Date;
-@Entity
+
 @Data
-public class Diagnosi {
-    @Id
+public class DiagnosiDTO {
     private long id;
     private String tipo;
     private String classe;
@@ -20,7 +19,4 @@ public class Diagnosi {
     private boolean risolta;
     private Date dataRisoluzione;
 
-
-    @ManyToOne
-    private Pratica pratica;
 }
