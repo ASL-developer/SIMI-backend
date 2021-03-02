@@ -22,4 +22,6 @@ public class Contatto extends DataObject{
     private Long antiHBcIgM;
     private Long antiHBe;
     private Long antiHCV;
+
+    private Long no;
 }
