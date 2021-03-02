@@ -17,6 +17,7 @@ public class Diagnosi extends DataObject{
     private boolean risolta;
     private Date dataRisoluzione;
 
+    private Long no;
 
     @ManyToOne
     private Pratica pratica;
