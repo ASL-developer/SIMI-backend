@@ -25,5 +25,5 @@ public class Contatto {
     private Long antiHBe;
     private Long antiHCV;
 
-    private Long no;
+    private Long si;
 }
