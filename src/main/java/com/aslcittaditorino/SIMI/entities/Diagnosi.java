@@ -11,7 +11,7 @@ import java.util.Date;
 @Data
 public class Diagnosi {
     @Id
-    private long id;
+    private Long id;
     private String tipo;
     private String classe;
     private String ricovero;

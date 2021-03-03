@@ -1,12 +1,9 @@
 package com.aslcittaditorino.SIMI.services;
 
 import com.aslcittaditorino.SIMI.DTOs.*;
-import com.aslcittaditorino.SIMI.entities.Contatto;
-import com.aslcittaditorino.SIMI.entities.Pratica;
+import com.aslcittaditorino.SIMI.entities.*;
 import com.aslcittaditorino.SIMI.exceptions.PraticaServiceException;
-import com.aslcittaditorino.SIMI.repositories.ContattoRepository;
-import com.aslcittaditorino.SIMI.repositories.PersonaRepository;
-import com.aslcittaditorino.SIMI.repositories.PraticaRepository;
+import com.aslcittaditorino.SIMI.repositories.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +14,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PraticaServiceImpl implements PraticaService {
@@ -29,128 +27,195 @@ public class PraticaServiceImpl implements PraticaService {
 
     @Autowired
     ContattoRepository contattoRepository;
+    @Autowired
+    DiagnosiRepository diagnosiRepository;
+    @Autowired
+    MorsicaturaRepository morsicaturaRepository;
+    @Autowired
+    ProvvedimentoRepository provvedimentoRepository;
 
-    /*@Override
-    public String getNextId() {
+
+    public long getNextPraticaId() {
         long year = LocalDate.now().getYear();
-        return String.valueOf(year).concat("");
-    }*/
+        Optional<Long> id = praticaRepository.findNextIdByYear(String.valueOf(year));
+        if(id.isPresent())
+            return id.get();
+        else
+            return Long.valueOf(String.valueOf(year).concat("0001"));
+
+    }
 
     @Override
     @Transactional
-    public long addPratica(PraticaDTO pratica) {
-        Pratica temp;
-        if(Optional.ofNullable(pratica.getId()).isEmpty())
-            throw new PraticaServiceException("Porco giuda");
-
-        temp = modelMapper.map(pratica,Pratica.class);
-        System.out.println(temp);
-        praticaRepository.save(temp);
-        return temp.getId();
+    public long addPratica(PraticaDTO praticaDTO) {
+        Optional<Pratica> pratica = praticaRepository.findById(praticaDTO.getId());
+        if(pratica.isPresent())
+            return getNextPraticaId();
+        praticaRepository.save(modelMapper.map(praticaDTO, Pratica.class));
+        return praticaDTO.getId();
     }
 
 
     @Override
+    @Transactional
     public PraticaDTO getPratica(Long id) {
-        Pratica temp = new Pratica();
-        praticaRepository.findById(id).ifPresent(item->{
-            temp.setId(item.getId());
-            temp.setDataSegnalazione(item.getDataSegnalazione());
-            temp.setDataRicezione(item.getDataRicezione());
-            temp.setStruttDenunciante(item.getStruttDenunciante());
-            temp.setDataRegistrazione(item.getDataRegistrazione());
-            temp.setDataArchiviazione(item.getDataArchiviazione());
-            temp.setOperatore(item.getOperatore());
-            temp.setDataSimi(item.getDataSimi());
-            temp.setStato(item.getStato());
+        Pratica pratica = praticaRepository.findById(id).get();
+        if(Optional.ofNullable(pratica).isEmpty())
+            throw new PraticaServiceException("Pratica not found");
+        else
+            return modelMapper.map(pratica,PraticaDTO.class);
+    }
 
-        });
-        return modelMapper.map(temp,PraticaDTO.class);
+    @Override
+    public long updatePratica(PraticaDTO praticaDTO) {
+        Optional<Pratica> pratica = praticaRepository.findById(praticaDTO.getId());
+        if(!pratica.isPresent())
+            throw new PraticaServiceException("Pratica not found");
+
+        pratica.get().setDataSegnalazione(praticaDTO.getDataSegnalazione());
+        pratica.get().setDataArchiviazione(praticaDTO.getDataArchiviazione());
+        pratica.get().setDataRegistrazione(praticaDTO.getDataRegistrazione());
+        pratica.get().setStato(praticaDTO.getStato());
+        pratica.get().setOperatore(praticaDTO.getOperatore());
+        pratica.get().setDataSimi(praticaDTO.getDataSimi());
+        pratica.get().setStruttDenunciante(praticaDTO.getStruttDenunciante());
+
+        praticaRepository.save(pratica.get());
+        return 0;
     }
 
     @Override
     @Transactional
-    public long addContattoToPratica(Long idPratica, Long idContatto) {
-        if(Optional.ofNullable(idPratica).isEmpty())
-            throw new PraticaServiceException("ERRORE");
-        if(Optional.ofNullable(idContatto).isEmpty())
-            throw new PraticaServiceException("ERRORE");
-        if(praticaRepository.findById(idPratica).isEmpty() || contattoRepository.findById(idContatto).isEmpty()){
-            throw new PraticaServiceException("ID PRATICA O CONTATTO NON PRESENTE");
-        }else{
-            Pratica temp = praticaRepository.findById(idPratica).get();
-            List<Contatto> tempList= temp.getContatti();
-            tempList.add(contattoRepository.findById(idContatto).get());
-            temp.setContatti(tempList);
-            praticaRepository.save(temp);
-        }
-        return 0l;
+    public boolean addContattoToPratica(Long idPratica, Long idContatto) {
+        Optional<Pratica> pratica = praticaRepository.findById(idPratica);
+        if(!pratica.isPresent())
+            throw new PraticaServiceException("Pratica Not Found");
+
+        Optional<Contatto> contatto = contattoRepository.findById(idContatto);
+        if(!contatto.isPresent())
+            throw new PraticaServiceException("Contatto Not Found");
+
+        pratica.get().addContatto(contatto.get());
+
+        praticaRepository.save(pratica.get());
+        contattoRepository.save(contatto.get());
+        return true;
     }
 
     @Override
     public List<ContattoDTO> getContattiForPratica(Long idPratica) {
-        if(Optional.ofNullable(idPratica).isEmpty())
-            throw new PraticaServiceException("ERRORE");
-        List<Contatto> contatti = new ArrayList<Contatto>();
-        List<ContattoDTO> contattiDTO = new ArrayList<ContattoDTO>();
-        contattoRepository.findContattosByPratica(praticaRepository.findById(idPratica).get()).ifPresent(list->{
-            list.stream().forEach(item->{
-                Contatto temp = new Contatto();
-                temp.setId(item.getId());
-                temp.setPratica(item.getPratica());
-                temp.setPersona(item.getPersona());
-                temp.setCausale(item.getCausale());
-                temp.setHbsAg(item.getHbsAg());
-                temp.setAntiHBs(item.getAntiHBs());
-                temp.setAntiHBc(item.getAntiHBc());
-                temp.setAntiHBcIgM(item.getAntiHBcIgM());
-                temp.setAntiHBe(item.getAntiHBe());
-                temp.setAntiHCV(item.getAntiHCV());
+        Optional<Pratica> pratica = praticaRepository.findById(idPratica);
+        if(!pratica.isPresent())
+            throw new PraticaServiceException("Pratica not found");
 
-                contatti.add(temp);
-            });
-            
-        });
-        return null;
+        return pratica.get().getContatti()
+                .stream()
+                .map( c -> { return modelMapper.map(c, ContattoDTO.class); })
+                .collect(Collectors.toList());
+
     }
 
     @Override
-    public long addPazienteToPratica(Long idPratica, String codf) {
-        return 0;
+    public boolean addPazienteToPratica(Long idPratica, String codf) {
+        Optional<Pratica> pratica = praticaRepository.findById(idPratica);
+        if(!pratica.isPresent())
+            throw new PraticaServiceException("Pratica Not Found");
+
+        Optional<Persona> persona = personaRepository.findById(codf);
+        if(!persona.isPresent())
+            throw new PraticaServiceException("Persona Not Found");
+
+        //TODO: controllare funzionamento loop
+        pratica.get().setPaziente(persona.get());
+        praticaRepository.save(pratica.get());
+        personaRepository.save(persona.get());
+        return true;
     }
 
     @Override
     public PersonaDTO getPazienteForPratica(Long idPratica) {
-        return null;
+        Optional<Pratica> pratica = praticaRepository.findById(idPratica);
+        if(!pratica.isPresent())
+            throw new PraticaServiceException("Pratica Not Found");
+
+        return modelMapper.map(pratica.get().getPaziente(),PersonaDTO.class);
     }
 
     @Override
-    public long addDiagnosiToPratica(Long idPratica, Long idDiagnosi) {
-        return 0;
+    public boolean addDiagnosiToPratica(Long idPratica, Long idDiagnosi) {
+        Optional<Pratica> pratica = praticaRepository.findById(idPratica);
+        if(!pratica.isPresent())
+            throw new PraticaServiceException("Pratica Not Found");
+
+        Optional<Diagnosi> diagnosi = diagnosiRepository.findById(idDiagnosi);
+        if(!diagnosi.isPresent()) throw new PraticaServiceException("Diagnosi not found");
+
+        pratica.get().addDiagnosi(diagnosi.get());
+        praticaRepository.save(pratica.get());
+        diagnosiRepository.save(diagnosi.get());
+
+        return true;
     }
 
     @Override
     public List<DiagnosiDTO> getAllDiagnosiForPratica(Long idPratica) {
-        return null;
+        Optional<Pratica> pratica = praticaRepository.findById(idPratica);
+        if(!pratica.isPresent())
+            throw new PraticaServiceException("Pratica Not Found");
+
+        return pratica.get().getDiagnosi().stream()
+                .map(item->{return modelMapper.map(item,DiagnosiDTO.class);})
+                .collect(Collectors.toList());
     }
 
     @Override
-    public long addMorsicaturaToPratica(Long idPratica, Long idMorsicatura) {
-        return 0;
+    public boolean addMorsicaturaToPratica(Long idPratica, Long idMorsicatura) {
+        Optional<Pratica> pratica = praticaRepository.findById(idPratica);
+        if(!pratica.isPresent())
+            throw new PraticaServiceException("Pratica Not Found");
+
+        Optional<Morsicatura> morsicatura = morsicaturaRepository.findById(idMorsicatura);
+        if(!morsicatura.isPresent()) throw new PraticaServiceException("Morsicatura not found");
+
+        pratica.get().setMorsicatura(morsicatura.get());
+        praticaRepository.save(pratica.get());
+        morsicaturaRepository.save(morsicatura.get());
+
+        return true;
     }
 
     @Override
     public MorsicaturaDTO getMorsicaturaForPratica(Long idPratica) {
-        return null;
+        Optional<Pratica> pratica = praticaRepository.findById(idPratica);
+        if(!pratica.isPresent())
+            throw new PraticaServiceException("Pratica Not Found");
+        return modelMapper.map(pratica.get().getMorsicatura(),MorsicaturaDTO.class);
     }
 
     @Override
-    public long addProvvedimentoToPratica(Long idPratica, Long idProvvedimento) {
-        return 0;
+    public boolean addProvvedimentoToPratica(Long idPratica, Long idProvvedimento) {
+        Optional<Pratica> pratica = praticaRepository.findById(idPratica);
+        if(!pratica.isPresent())
+            throw new PraticaServiceException("Pratica Not Found");
+
+        Optional<Provvedimento> provvedimento = provvedimentoRepository.findById(idProvvedimento);
+        if(!provvedimento.isPresent()) throw new PraticaServiceException("Morsicatura not found");
+
+        pratica.get().addProvvedimento(provvedimento.get());
+        praticaRepository.save(pratica.get());
+        provvedimentoRepository.save(provvedimento.get());
+
+        return true;
     }
 
     @Override
     public List<ProvvedimentoDTO> getProvvedimentiForPratica(Long idPratica) {
-        return null;
+        Optional<Pratica> pratica = praticaRepository.findById(idPratica);
+        if(!pratica.isPresent())
+            throw new PraticaServiceException("Pratica Not Found");
+
+        return pratica.get().getProvvedimenti().stream()
+                .map(item->{return modelMapper.map(item,ProvvedimentoDTO.class);})
+                .collect(Collectors.toList());
     }
 }

@@ -8,29 +8,31 @@ import java.util.List;
 @Service
 public interface PraticaService {
 
-    //public long getNextId();
+    public long getNextPraticaId();
 
     public long addPratica(PraticaDTO pratica);
 
     public PraticaDTO getPratica(Long id);
 
-    public long addContattoToPratica(Long idPratica,Long idContatto);
+    public long updatePratica(PraticaDTO pratica);
+
+    public boolean addContattoToPratica(Long idPratica,Long idContatto);
 
     public List<ContattoDTO> getContattiForPratica(Long idPratica);
 
-    public long addPazienteToPratica(Long idPratica,String codf);
+    public boolean addPazienteToPratica(Long idPratica,String codf);
 
     public PersonaDTO getPazienteForPratica(Long idPratica);
 
-    public long addDiagnosiToPratica(Long idPratica, Long idDiagnosi);
+    public boolean addDiagnosiToPratica(Long idPratica, Long idDiagnosi);
 
     public List<DiagnosiDTO> getAllDiagnosiForPratica(Long idPratica);
 
-    public long addMorsicaturaToPratica(Long idPratica,Long idMorsicatura);
+    public boolean addMorsicaturaToPratica(Long idPratica,Long idMorsicatura);
 
     public MorsicaturaDTO getMorsicaturaForPratica(Long idPratica);
 
-    public long addProvvedimentoToPratica(Long idPratica,Long idProvvedimento);
+    public boolean addProvvedimentoToPratica(Long idPratica,Long idProvvedimento);
 
     public List<ProvvedimentoDTO> getProvvedimentiForPratica (Long idPratica);
 }
