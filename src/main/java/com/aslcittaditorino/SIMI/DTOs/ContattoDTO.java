@@ -15,6 +15,7 @@ public class ContattoDTO {
 
     private Long id;
 
+    private String codfProprietario;
 
     private String causale;
     private Long hbsAg;

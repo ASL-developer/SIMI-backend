@@ -1,7 +1,7 @@
 package com.aslcittaditorino.SIMI.security;
 
-import com.aslcittaditorino.phonemanager.security.jwt.JwtConfigurer;
-import com.aslcittaditorino.phonemanager.security.jwt.JwtTokenProvider;
+import com.aslcittaditorino.SIMI.security.jwt.JwtConfigurer;
+import com.aslcittaditorino.SIMI.security.jwt.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -22,7 +22,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http
+        /*http
                 .httpBasic()
                 .disable()
                 .csrf()
@@ -51,8 +51,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling()
                 .authenticationEntryPoint(
                         new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)
-                )
-                .and()
-                .apply(new JwtConfigurer(jwtTokenProvider));
+                ).and()
+                .apply(new JwtConfigurer(jwtTokenProvider));*/
+        http.httpBasic()
+                .disable()
+                .csrf()
+                .disable().authorizeRequests().antMatchers(HttpMethod.GET).permitAll()
+            .antMatchers(HttpMethod.POST).permitAll().antMatchers(HttpMethod.PUT).permitAll()
+                .and().exceptionHandling().authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+        .and().apply(new JwtConfigurer(jwtTokenProvider));
     }
 }

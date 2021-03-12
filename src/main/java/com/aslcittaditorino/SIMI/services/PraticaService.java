@@ -8,6 +8,8 @@ import java.util.List;
 @Service
 public interface PraticaService {
 
+    public List<MaxiPraticaDTO> getAllPratiche();
+
     public long getNextPraticaId();
 
     public long addPratica(PraticaDTO pratica);

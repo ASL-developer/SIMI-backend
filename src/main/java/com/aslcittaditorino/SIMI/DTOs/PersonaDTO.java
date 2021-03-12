@@ -7,6 +7,7 @@ import java.sql.Date;
 
 @Data
 public class PersonaDTO {
+    private Long id;
     private String codf;
 
     private String nome;

@@ -1,5 +1,7 @@
 package com.aslcittaditorino.SIMI.services;
 
+import com.aslcittaditorino.SIMI.DTOs.PersonaDTO;
+import com.aslcittaditorino.SIMI.DTOs.PraticaDTO;
 import com.aslcittaditorino.SIMI.DTOs.ProvvedimentoDTO;
 import org.springframework.stereotype.Service;
 
@@ -10,8 +12,8 @@ public interface ProvvedimentoService {
 
     public long addProvvedimento(ProvvedimentoDTO provvedimentoDTO);
 
-    //public PraticaDTO getPraticaForProvvedimento(long id);
+    public PraticaDTO getPraticaForProvvedimento(long id);
 
-    //public PersonaDTO getPersonaForProvvedimento(long id);
+    public PersonaDTO getPersonaForProvvedimento(long id);
 
 }

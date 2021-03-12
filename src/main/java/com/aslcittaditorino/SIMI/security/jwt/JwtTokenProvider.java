@@ -1,8 +1,8 @@
 package com.aslcittaditorino.SIMI.security.jwt;
 
-import com.aslcittaditorino.phonemanager.repositories.UserRepository;
-import com.aslcittaditorino.phonemanager.security.User;
-import com.aslcittaditorino.phonemanager.services.StatisticService;
+import com.aslcittaditorino.SIMI.repositories.UserRepository;
+import com.aslcittaditorino.SIMI.security.User;
+import com.aslcittaditorino.SIMI.services.StatisticService;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;

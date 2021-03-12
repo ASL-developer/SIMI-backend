@@ -10,7 +10,9 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import java.sql.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
-public interface PersonaRepository extends JpaRepository<Persona,String> {
+public interface PersonaRepository extends JpaRepository<Persona,Long> {
+    public Optional<Persona> getByCodfEquals(String codf);
 }

@@ -1,7 +1,7 @@
 package com.aslcittaditorino.SIMI.services;
 
-import com.aslcittaditorino.phonemanager.entities.Session;
-import com.aslcittaditorino.phonemanager.repositories.SessionRepository;
+import com.aslcittaditorino.SIMI.entities.Session;
+import com.aslcittaditorino.SIMI.repositories.SessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;

@@ -9,11 +9,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Entity
-@SequenceGenerator(name="pratica",initialValue = 1 )
 @Data
 public class Pratica {
+
     @Id
-    @GeneratedValue()
     private Long id;
     private Date dataSegnalazione;
     private Date dataRicezione;
