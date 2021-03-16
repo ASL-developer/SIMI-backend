@@ -18,5 +18,4 @@ public class DiagnosiDTO {
     private Date dataPrimaDiagnosi;
     private boolean risolta;
     private Date dataRisoluzione;
-
 }

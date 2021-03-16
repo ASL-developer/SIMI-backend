@@ -35,6 +35,13 @@ public class TestController {
         return praticaService.getAllPratiche();
     }
 
+    @PostMapping("/addMaxiPratica")
+    public Long addMaxiPratica(@RequestBody MaxiPraticaDTO maxiPraticaDTO){return praticaService.addMaxiPratica(maxiPraticaDTO);}
+
+    @GetMapping("/getNextPraticaId")
+    public Long getNextPraticaId(){
+        return praticaService.getNextPraticaId();
+    }
 
     @PostMapping("/addPersona")
     public String addPersona(@RequestBody PersonaDTO personaDTO){
