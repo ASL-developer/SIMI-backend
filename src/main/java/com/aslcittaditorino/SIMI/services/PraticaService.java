@@ -10,6 +10,8 @@ public interface PraticaService {
 
     public List<MaxiPraticaDTO> getAllPratiche();
 
+    public long addMaxiPratica(MaxiPraticaDTO maxiPraticaDTO);
+
     public long getNextPraticaId();
 
     public long addPratica(PraticaDTO pratica);

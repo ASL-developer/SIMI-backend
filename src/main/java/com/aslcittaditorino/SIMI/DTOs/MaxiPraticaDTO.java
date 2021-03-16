@@ -18,11 +18,11 @@ public class MaxiPraticaDTO {
     private Date dataSimi;
     private String stato;
 
-    private PersonaDTO paziente;
     private List<ProvvedimentoDTO> provvedimenti;
-    private List<ContattoDTO> contatti;
-    private List<PersonaDTO> correlati;
+    private PersonaDTO paziente;
+    private List<CorrelatoDTO> correlati;
     private List <DiagnosiDTO> diagnosiList;
     private MorsicaturaDTO morsicatura;
     private PersonaDTO proprietario;
+
 }

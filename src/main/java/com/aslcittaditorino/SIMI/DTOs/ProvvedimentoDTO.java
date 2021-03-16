@@ -16,5 +16,4 @@ public class ProvvedimentoDTO {
     private Date dataProvvedimento;
     private int numeroPersone;
     private Long dosaggio;
-    private String codfProprietario;
 }

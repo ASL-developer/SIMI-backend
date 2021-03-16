@@ -42,4 +42,25 @@ public class Persona extends DataObject{
     @OneToMany(mappedBy = "paziente")
     private List<Pratica> pratiche;
 
+    public void addContatto(Contatto contatto){
+            this.contatti.add(contatto);
+            contatto.setPersona(this);
+
+    }
+
+    public void addMorsicatura(Morsicatura morsicatura){
+            this.morsicature.add(morsicatura);
+            morsicatura.setProprietario(this);
+    }
+
+    public void addProvvedimenti(Provvedimento provvedimento){
+            this.provvedimenti.add(provvedimento);
+            provvedimento.setPersona(this);
+    }
+
+    public void addPratica(Pratica pratica){
+            this.pratiche.add(pratica);
+            pratica.setPaziente(this);
+
+    }
 }

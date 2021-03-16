@@ -41,26 +41,22 @@ public class Pratica {
     private BlobType pdf;
 
     public void addContatto(Contatto contatto){
-        if(!contatti.contains(contatto))
             contatti.add(contatto);
         contatto.setPratica(this);
     }
 
     public void addProvvedimento(Provvedimento provvedimento){
-        if(!provvedimenti.contains(provvedimento))
             provvedimenti.add(provvedimento);
         provvedimento.setPratica(this);
     }
 
     public void addDiagnosi(Diagnosi diagnosi){
-        if(!this.diagnosi.contains(diagnosi))
-            this.diagnosi.add(diagnosi);
+        this.diagnosi.add(diagnosi);
         diagnosi.setPratica(this);
     }
 
     public void setPaziente(Persona paziente){
         this.paziente = paziente;
-        if(!paziente.getPratiche().contains(this))
             paziente.getPratiche().add(this);
     }
 
