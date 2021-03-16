@@ -1,14 +1,16 @@
-package com.aslcittaditorino.SIMI.entities;
+package com.aslcittaditorino.SIMI.DTOs;
 
+import com.aslcittaditorino.SIMI.entities.Pratica;
 import lombok.Data;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import java.util.Date;
-@Entity
-@Data
-@SequenceGenerator(initialValue = 1,name="idgen",sequenceName = "diagnosiId")
-public class Diagnosi extends DataObject{
 
+@Data
+public class DiagnosiDTO {
+    private long id;
     private String tipo;
     private String classe;
     private String ricovero;
@@ -17,7 +19,4 @@ public class Diagnosi extends DataObject{
     private boolean risolta;
     private Date dataRisoluzione;
 
-
-    @ManyToOne
-    private Pratica pratica;
 }
