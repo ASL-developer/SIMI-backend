@@ -4,6 +4,7 @@ import lombok.Data;
 import org.hibernate.type.BlobType;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -41,27 +42,31 @@ public class Pratica {
     private BlobType pdf;
 
     public void addContatto(Contatto contatto){
+        if(this.contatti==null)
+            this.contatti=new ArrayList<>();
+        if(this.contatti.contains(contatto))
             contatti.add(contatto);
-        contatto.setPratica(this);
     }
 
     public void addProvvedimento(Provvedimento provvedimento){
+        if(this.provvedimenti == null)
+            this.provvedimenti=new ArrayList<>();
+        if(!this.provvedimenti.contains(provvedimento))
             provvedimenti.add(provvedimento);
-        provvedimento.setPratica(this);
     }
 
     public void addDiagnosi(Diagnosi diagnosi){
-        this.diagnosi.add(diagnosi);
-        diagnosi.setPratica(this);
+        if(this.diagnosi==null)
+            this.diagnosi = new ArrayList<>();
+        if(!this.diagnosi.contains(diagnosi))
+            this.diagnosi.add(diagnosi);
     }
 
     public void setPaziente(Persona paziente){
         this.paziente = paziente;
-            paziente.getPratiche().add(this);
     }
 
     public void setMorsicatura(Morsicatura morsicatura){
         this.morsicatura = morsicatura;
-        morsicatura.setPratica(this);
     }
 }
