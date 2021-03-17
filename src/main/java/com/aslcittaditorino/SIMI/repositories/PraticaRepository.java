@@ -15,7 +15,7 @@ import java.util.Optional;
 @Repository
 public interface PraticaRepository extends JpaRepository<Pratica,Long> {
 
-    @Query(value = "select id from pratica where id like :year%",nativeQuery = true)
+    @Query(value = "select max(id) from pratica where id like :year%",nativeQuery = true)
     Optional<Long> findNextIdByYear(@Param("year")String year);
 
 }
