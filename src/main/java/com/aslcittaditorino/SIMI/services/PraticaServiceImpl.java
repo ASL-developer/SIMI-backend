@@ -7,12 +7,9 @@ import com.aslcittaditorino.SIMI.repositories.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
-import javax.swing.text.html.Option;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -146,7 +143,6 @@ public class PraticaServiceImpl implements PraticaService {
 
         System.out.println("acquired morsicatura");
 
-        //Pratica finalPratica = pratica;
         if(maxiPraticaDTO.getDiagnosiList()!=null){
             List<DiagnosiDTO> listDiagnosi= maxiPraticaDTO.getDiagnosiList();
             for (DiagnosiDTO diagnosiDTO : listDiagnosi) {
