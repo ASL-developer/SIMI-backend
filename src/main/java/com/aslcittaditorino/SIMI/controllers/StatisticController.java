@@ -1,5 +1,6 @@
-/*package com.aslcittaditorino.SIMI.controllers;
+package com.aslcittaditorino.SIMI.controllers;
 
+import com.aslcittaditorino.SIMI.DTOs.SessionDTO;
 import com.aslcittaditorino.SIMI.services.StatisticService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -23,4 +24,3 @@ public class StatisticController {
 
 
 }
-*/

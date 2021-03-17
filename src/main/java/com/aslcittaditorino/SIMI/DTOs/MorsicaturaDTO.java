@@ -1,14 +1,18 @@
-package com.aslcittaditorino.SIMI.entities;
+package com.aslcittaditorino.SIMI.DTOs;
 
+import com.aslcittaditorino.SIMI.entities.Persona;
+import com.aslcittaditorino.SIMI.entities.Pratica;
 import lombok.Data;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import java.util.Date;
 
-@Entity
 @Data
-@SequenceGenerator(initialValue = 1,name="idgen",sequenceName = "morsicaturaId")
-public class Morsicatura extends DataObject{
+public class MorsicaturaDTO {
+    private Long id;
 
     private Date dataMorsicatura;
     private String animale;
@@ -22,9 +26,4 @@ public class Morsicatura extends DataObject{
     private Long immTet;
     private String note;
 
-    @ManyToOne
-    private Persona proprietario;
-
-    @OneToOne(optional = true)
-    private Pratica pratica;
 }

@@ -2,17 +2,17 @@ package com.aslcittaditorino.SIMI.entities;
 
 import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import java.sql.Date;
 import java.util.List;
 
 @Entity
 @Data
-public class Persona {
-    @Id
+@SequenceGenerator(initialValue = 1,name="idgen",sequenceName = "personaId")
+
+public class Persona extends DataObject{
+
+
     private String codf;
 
     private String nome;

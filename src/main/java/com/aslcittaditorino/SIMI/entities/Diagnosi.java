@@ -2,16 +2,13 @@ package com.aslcittaditorino.SIMI.entities;
 
 import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.Date;
 @Entity
 @Data
-public class Diagnosi {
-    @Id
-    private long id;
+@SequenceGenerator(initialValue = 1,name="idgen",sequenceName = "diagnosiId")
+public class Diagnosi extends DataObject{
+
     private String tipo;
     private String classe;
     private String ricovero;
@@ -22,4 +19,6 @@ public class Diagnosi {
 
     private Long no;
 
+    @ManyToOne
+    private Pratica pratica;
 }

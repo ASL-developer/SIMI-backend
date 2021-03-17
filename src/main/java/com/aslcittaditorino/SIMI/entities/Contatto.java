@@ -7,16 +7,14 @@ import javax.persistence.*;
 
 @Entity
 @Data
-public class Contatto {
+@SequenceGenerator(initialValue = 1,name="idgen",sequenceName = "contattoId")
+public class Contatto extends DataObject{
 
 
-    @Id
-    private Long id;
     @ManyToOne
     private Pratica pratica;
     @ManyToOne
     private Persona persona;
-
     private String causale;
     private Long hbsAg;
     private Long antiHBs;
