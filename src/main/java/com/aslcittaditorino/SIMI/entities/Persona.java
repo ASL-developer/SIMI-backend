@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -42,4 +43,31 @@ public class Persona extends DataObject{
     @OneToMany(mappedBy = "paziente")
     private List<Pratica> pratiche;
 
+    public void addContatto(Contatto contatto){
+        if(this.contatti==null)
+            this.contatti=new ArrayList<Contatto>();
+        if(!this.contatti.contains(contatto))
+            this.contatti.add(contatto);
+    }
+
+    public void addMorsicatura(Morsicatura morsicatura){
+        if(this.morsicature==null)
+            this.morsicature = new ArrayList<Morsicatura>();
+        if(!this.morsicature.contains(morsicatura))
+            this.morsicature.add(morsicatura);
+    }
+
+    public void addProvvedimento(Provvedimento provvedimento){
+        if(this.provvedimenti==null)
+            this.provvedimenti = new ArrayList<Provvedimento>();
+        if(!this.provvedimenti.contains(provvedimento))
+            this.provvedimenti.add(provvedimento);
+    }
+
+    public void addPratica(Pratica pratica){
+        if(this.pratiche==null)
+            this.pratiche = new ArrayList<>();
+        if(!this.pratiche.contains(pratica))
+            this.pratiche.add(pratica);
+    }
 }

@@ -7,11 +7,9 @@ import com.aslcittaditorino.SIMI.repositories.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -34,6 +32,12 @@ public class PraticaServiceImpl implements PraticaService {
     @Autowired
     ProvvedimentoRepository provvedimentoRepository;
 
+
+    @Autowired
+    MorsicaturaService morsicaturaService;
+    @Autowired
+    PersonaService personaService;
+
     public List<MaxiPraticaDTO> getAllPratiche(){
         System.out.println("ENTRATO");
         return praticaRepository.findAll().stream().map(item->{
@@ -50,29 +54,22 @@ public class PraticaServiceImpl implements PraticaService {
             tempDTO.setStato(item.getStato());
             System.out.println(tempDTO);
             tempDTO.setPaziente(modelMapper.map(item.getPaziente(),PersonaDTO.class));
-            if(!item.getProvvedimenti().isEmpty()) {
-                System.out.println("saving provvedimenti");
-                tempDTO.setProvvedimenti(
-                        item.getProvvedimenti()
-                                .stream()
-                                .map(prov -> {
-                                    ProvvedimentoDTO provDTO = modelMapper.map(prov, ProvvedimentoDTO.class);
-                                    provDTO.setCodfProprietario(prov.getPersona().getCodf());
-                                    return provDTO;
-                                }).collect(Collectors.toList()));
-            }
-            if(!item.getContatti().isEmpty()) {
-                System.out.println("saving contatti");
-                tempDTO.setContatti(item.getContatti().stream().map(cont -> {
-                    ContattoDTO contDTO = modelMapper.map(cont, ContattoDTO.class);
-                    contDTO.setCodfProprietario(cont.getPersona().getCodf());
-                    return contDTO;
-                }).collect(Collectors.toList()));
-            }
-            if(!item.getContatti().isEmpty()) {
-                System.out.println("saving persona correlata");
-                tempDTO.setCorrelati(item.getContatti().stream().map(pers -> {
-                    return modelMapper.map(pers, PersonaDTO.class);
+
+            if(!item.getContatti().isEmpty()){
+                System.out.println("saving correlati");
+                tempDTO.setCorrelati(item.getContatti().stream().map(cont->{
+                    ContattoDTO contattoDTO = modelMapper.map(cont,ContattoDTO.class);
+                    List<ProvvedimentoDTO> provvedimenti = item.getProvvedimenti().stream().filter(prov->{
+                        return prov.getPersona() == cont.getPersona();
+                    }).map(prov-> {
+                        return modelMapper.map(prov, ProvvedimentoDTO.class);
+                    }).collect(Collectors.toList());
+                    PersonaDTO personaDTO = modelMapper.map(cont.getPersona(),PersonaDTO.class);
+                    CorrelatoDTO correlatoDTO = new CorrelatoDTO();
+                    correlatoDTO.setContatto(contattoDTO);
+                    correlatoDTO.setProprietario(personaDTO);
+                    correlatoDTO.setProvvedimenti(provvedimenti);
+                    return correlatoDTO;
                 }).collect(Collectors.toList()));
             }
             if(!item.getDiagnosi().isEmpty()) {
@@ -95,12 +92,105 @@ public class PraticaServiceImpl implements PraticaService {
         }).collect(Collectors.toList());
     }
 
+    @Transactional
+    public long addMaxiPratica(MaxiPraticaDTO maxiPraticaDTO){
+        if(praticaRepository.findById(maxiPraticaDTO.getId()).isPresent() || maxiPraticaDTO.getId() != getNextPraticaId())
+            throw new PraticaServiceException("ID NON CORRETTO");
+        Pratica pratica = new Pratica();
+
+        pratica.setId(maxiPraticaDTO.getId());
+        pratica.setDataSegnalazione(maxiPraticaDTO.getDataSegnalazione());
+        pratica.setDataRicezione(maxiPraticaDTO.getDataRicezione());
+        pratica.setStruttDenunciante(maxiPraticaDTO.getStruttDenunciante());
+        pratica.setDataRegistrazione(maxiPraticaDTO.getDataRegistrazione());
+        pratica.setDataArchiviazione(maxiPraticaDTO.getDataArchiviazione());
+        pratica.setOperatore(maxiPraticaDTO.getOperatore());
+        pratica.setDataSimi(maxiPraticaDTO.getDataSimi());
+        pratica.setStato(maxiPraticaDTO.getStato());
+
+        pratica = praticaRepository.save(pratica);
+
+        Optional<Persona> paziente=null;
+        if(maxiPraticaDTO.getPaziente()!=null){
+            paziente = personaRepository.getByCodfEquals(maxiPraticaDTO.getPaziente().getCodf());
+            if(paziente.isPresent())
+                paziente = Optional.ofNullable(personaRepository.save(paziente.get()));
+            else
+                paziente = Optional.ofNullable(personaRepository.save(modelMapper.map(maxiPraticaDTO.getPaziente(),Persona.class)));
+
+            pratica.setPaziente(paziente.get());
+            paziente.get().addPratica(pratica);
+            personaRepository.save(paziente.get());
+            pratica = praticaRepository.save(pratica);
+        }
+        Morsicatura morsicatura = null;
+        if(maxiPraticaDTO.getMorsicatura()!=null) {
+            morsicatura = morsicaturaRepository.save(modelMapper.map(maxiPraticaDTO.getMorsicatura(),Morsicatura.class));
+            pratica.setMorsicatura(morsicatura);
+            morsicatura.setPratica(pratica);
+            morsicaturaRepository.save(morsicatura);
+            pratica = praticaRepository.save(pratica);
+        }
+        Persona proprietario = null;
+        if(maxiPraticaDTO.getProprietario()!=null){
+            proprietario = personaRepository.save(modelMapper.map(maxiPraticaDTO.getProprietario(),Persona.class));
+            pratica.getMorsicatura().setProprietario(proprietario);
+            proprietario.addMorsicatura(pratica.getMorsicatura());
+            praticaRepository.save(pratica);
+            personaRepository.save(proprietario);
+        }
+
+
+        System.out.println("acquired morsicatura");
+
+        if(maxiPraticaDTO.getDiagnosiList()!=null){
+            List<DiagnosiDTO> listDiagnosi= maxiPraticaDTO.getDiagnosiList();
+            for (DiagnosiDTO diagnosiDTO : listDiagnosi) {
+                Diagnosi diagnosi = modelMapper.map(diagnosiDTO,Diagnosi.class);
+                diagnosi.setPratica(pratica);
+                pratica.addDiagnosi(diagnosi);
+                diagnosiRepository.save(diagnosi);
+            }
+        }
+
+        System.out.println("acquired diagnosi");
+        pratica = praticaRepository.save(pratica);
+
+        List<CorrelatoDTO> listCorrelati = maxiPraticaDTO.getCorrelati();
+        for(CorrelatoDTO correlatoDTO : listCorrelati){
+
+            Persona persona = modelMapper.map(correlatoDTO.getProprietario(),Persona.class);
+            Contatto contatto = modelMapper.map(correlatoDTO.getContatto(),Contatto.class);
+            persona.addContatto(contatto);
+            contatto.setPersona(persona);
+
+            List<ProvvedimentoDTO> listProvvedimenti = correlatoDTO.getProvvedimenti();
+            for(ProvvedimentoDTO provvedimentoDTO : listProvvedimenti){
+                Provvedimento provvedimento = modelMapper.map(provvedimentoDTO,Provvedimento.class);
+                provvedimento.setPersona(persona);
+                provvedimento.setPratica(pratica);
+                pratica.addProvvedimento(provvedimento);
+                persona.addProvvedimento(provvedimento);
+                provvedimentoRepository.save(provvedimento);
+            }
+            personaRepository.save(persona);
+            contattoRepository.save(contatto);
+        };
+
+
+        System.out.println("acquired provvedimenti");
+
+        return praticaRepository.save(pratica).getId();
+
+    }
+    
 
     public long getNextPraticaId() {
         long year = LocalDate.now().getYear();
+
         Optional<Long> id = praticaRepository.findNextIdByYear(String.valueOf(year));
         if(id.isPresent())
-            return id.get();
+            return id.get()+1;
         else
             return Long.valueOf(String.valueOf(year).concat("0001"));
 
