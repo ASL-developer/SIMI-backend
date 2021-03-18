@@ -55,6 +55,8 @@ public class PraticaServiceImpl implements PraticaService {
             System.out.println(tempDTO);
             tempDTO.setPaziente(modelMapper.map(item.getPaziente(),PersonaDTO.class));
 
+
+
             if(!item.getContatti().isEmpty()){
                 System.out.println("saving correlati");
                 tempDTO.setCorrelati(item.getContatti().stream().map(cont->{
@@ -162,6 +164,8 @@ public class PraticaServiceImpl implements PraticaService {
             Persona persona = modelMapper.map(correlatoDTO.getProprietario(),Persona.class);
             Contatto contatto = modelMapper.map(correlatoDTO.getContatto(),Contatto.class);
             persona.addContatto(contatto);
+            pratica.addContatto(contatto);
+            contatto.setPratica(pratica);
             contatto.setPersona(persona);
 
             List<ProvvedimentoDTO> listProvvedimenti = correlatoDTO.getProvvedimenti();
