@@ -13,7 +13,7 @@ import java.util.Date;
 public class ProvvedimentoDTO {
     private Long id;
     private String tipo;
-    private Date dataProvvedimento;
-    private int numeroPersone;
+    private Date data;
+    private int persone;
     private Long dosaggio;
 }
