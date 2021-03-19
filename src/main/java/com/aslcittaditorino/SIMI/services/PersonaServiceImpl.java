@@ -32,10 +32,10 @@ public class PersonaServiceImpl implements PersonaService {
 
     @Override
     public String updatePersona(PersonaDTO personaDTO) {
-        Optional<Persona> persona = personaRepository.getByCodfEquals(personaDTO.getCodf());
+        Optional<Persona> persona = personaRepository.getByCodfEquals(personaDTO.getCodF());
         if(persona.isEmpty()) throw new PersonaServiceException("Persona non presente");
 
-        persona.get().setCodf(personaDTO.getCodf());
+        persona.get().setCodf(personaDTO.getCodF());
         persona.get().setNome(personaDTO.getNome());
         persona.get().setCognome(personaDTO.getCognome());
         persona.get().setCellulare(personaDTO.getCellulare());

@@ -10,10 +10,7 @@ public class PraticaDTO {
     private Date dataSegnalazione;
     private Date dataRicezione;
     private String struttDenunciante;
-    private Date dataRegistrazione;
-    private Date dataArchiviazione;
     private String operatore;
-    private Date dataSimi;
     private String stato;
 
 
