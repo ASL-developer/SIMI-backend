@@ -7,7 +7,7 @@ import java.util.Date;
 
 @Entity
 @Data
-@SequenceGenerator(initialValue = 1,name="idgen",sequenceName = "provvedimentoId")
+@SequenceGenerator(initialValue = 1,name="idgen",allocationSize = 1,sequenceName = "provvedimentoId")
 public class Provvedimento extends DataObject{
 
     private String tipo;

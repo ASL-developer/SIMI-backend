@@ -14,5 +14,5 @@ import java.util.Optional;
 
 @Repository
 public interface PersonaRepository extends JpaRepository<Persona,Long> {
-    public Optional<Persona> getByCodfEquals(String codf);
+    public Optional<Persona> getByCodFEquals(String codf);
 }
