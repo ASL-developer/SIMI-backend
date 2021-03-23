@@ -7,7 +7,7 @@ import javax.persistence.*;
 
 @Entity
 @Data
-@SequenceGenerator(initialValue = 1,name="idgen",sequenceName = "contattoId")
+@SequenceGenerator(initialValue = 1,name="idgen",sequenceName = "contattoId",allocationSize = 1)
 public class Contatto extends DataObject{
 
 

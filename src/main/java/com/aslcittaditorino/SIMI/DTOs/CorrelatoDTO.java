@@ -7,7 +7,7 @@ import java.util.List;
 @Data
 public class CorrelatoDTO {
 
-    private PersonaDTO proprietario;
+    private PersonaDTO paziente;
     private ContattoDTO contatto;
     private List<ProvvedimentoDTO> provvedimenti;
 
