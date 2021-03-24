@@ -68,6 +68,34 @@ public class Persona extends DataObject{
         if(this.pratiche==null)
             this.pratiche = new ArrayList<>();
         if(!this.pratiche.contains(pratica))
-            this.pratiche.add(pratica);
+            this.pratiche.remove(pratica);
+    }
+
+    public void removeContatto(Contatto contatto){
+        if(this.contatti==null)
+            this.contatti=new ArrayList<Contatto>();
+        if(this.contatti.contains(contatto))
+            this.contatti.remove(contatto);
+    }
+
+    public void removeMorsicatura(Morsicatura morsicatura){
+        if(this.morsicature==null)
+            this.morsicature = new ArrayList<Morsicatura>();
+        if(this.morsicature.contains(morsicatura))
+            this.morsicature.remove(morsicatura);
+    }
+
+    public void removeProvvedimento(Provvedimento provvedimento){
+        if(this.provvedimenti==null)
+            this.provvedimenti = new ArrayList<Provvedimento>();
+        if(this.provvedimenti.contains(provvedimento))
+            this.provvedimenti.remove(provvedimento);
+    }
+
+    public void removePratica(Pratica pratica){
+        if(this.pratiche==null)
+            this.pratiche = new ArrayList<>();
+        if(this.pratiche.contains(pratica))
+            this.pratiche.remove(pratica);
     }
 }

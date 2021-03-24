@@ -12,6 +12,8 @@ public interface PraticaService {
 
     public long addMaxiPratica(MaxiPraticaDTO maxiPraticaDTO);
 
+    //public long updateMaxiPratica(MaxiPraticaDTO maxiPraticaDTO);
+
     public long getNextPraticaId();
 
     public long addPratica(PraticaDTO pratica);

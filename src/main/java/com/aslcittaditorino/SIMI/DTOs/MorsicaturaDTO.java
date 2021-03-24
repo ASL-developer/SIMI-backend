@@ -8,15 +8,21 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Data
 public class MorsicaturaDTO {
     private Long id;
 
+    @NotNull
+    @NotEmpty
     private Date dataMorsicatura;
     private String animale;
     private String sedeLesione;
+    @NotNull
+    @NotEmpty
     private String gradoEsposizione;
     private String luogoEvento;
     private String rischio;

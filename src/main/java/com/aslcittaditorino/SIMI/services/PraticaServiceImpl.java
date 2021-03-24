@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -102,13 +103,15 @@ public class PraticaServiceImpl implements PraticaService {
         pratica = praticaRepository.save(pratica);
 
         Optional<Persona> paziente=null;
+
         if(maxiPraticaDTO.getPaziente()!=null){
             paziente = personaRepository.getByCodFEquals(maxiPraticaDTO.getPaziente().getCodF());
             if(paziente.isPresent())
                 paziente = Optional.ofNullable(personaRepository.save(paziente.get()));
-            else
-                paziente = Optional.ofNullable(personaRepository.save(modelMapper.map(maxiPraticaDTO.getPaziente(),Persona.class)));
-
+            else {
+                if(maxiPraticaDTO.getPaziente().getCodF().length()!=16) throw new PraticaServiceException("INSERITO DOICE FISCALE INVALIDO");
+                paziente = Optional.ofNullable(personaRepository.save(modelMapper.map(maxiPraticaDTO.getPaziente(), Persona.class)));
+            }
             pratica.setPaziente(paziente.get());
             paziente.get().addPratica(pratica);
             personaRepository.save(paziente.get());
@@ -183,7 +186,108 @@ public class PraticaServiceImpl implements PraticaService {
         return praticaRepository.save(pratica).getId();
 
     }
-    
+
+    /*@Override
+    @Transactional
+    public long updateMaxiPratica(MaxiPraticaDTO maxiPraticaDTO) {
+        Optional<Pratica> oldPratica=praticaRepository.findById(maxiPraticaDTO.getId());
+
+        if(!oldPratica.isPresent()) throw new PraticaServiceException("Non esiste nessuna pratica con id selezionato");
+        Pratica newPratica = modelMapper.map(maxiPraticaDTO,Pratica.class);
+        newPratica.setId(oldPratica.get().getId());
+        newPratica.setPaziente(oldPratica.get().getPaziente());
+        newPratica.setDiagnosi(oldPratica.get().getDiagnosi());
+        newPratica.setContatti(oldPratica.get().getContatti());
+        newPratica.setProvvedimenti(oldPratica.get().getProvvedimenti());
+
+
+        Morsicatura oldMorsicatura = oldPratica.get().getMorsicatura();
+        if(oldMorsicatura != null){
+            if(Optional.ofNullable(maxiPraticaDTO.getMorsicatura()).isEmpty()) throw new PraticaServiceException("Cancellata unica morsicatura");
+            oldMorsicatura.setDataMorsicatura(maxiPraticaDTO.getMorsicatura().getDataMorsicatura());
+            oldMorsicatura.setAnimale(maxiPraticaDTO.getMorsicatura().getAnimale());
+            oldMorsicatura.setSedeLesione(maxiPraticaDTO.getMorsicatura().getSedeLesione());
+            oldMorsicatura.setGradoEsposizione(maxiPraticaDTO.getMorsicatura().getGradoEsposizione());
+            oldMorsicatura.setLuogoEvento(maxiPraticaDTO.getMorsicatura().getLuogoEvento());
+            oldMorsicatura.setRischio(maxiPraticaDTO.getMorsicatura().getRischio());
+            oldMorsicatura.setDataVaccRab(maxiPraticaDTO.getMorsicatura().getDataVaccRab());
+            oldMorsicatura.setDataVaccTet(maxiPraticaDTO.getMorsicatura().getDataVaccTet());
+            oldMorsicatura.setImmRab(maxiPraticaDTO.getMorsicatura().getImmRab());
+            oldMorsicatura.setImmTet(maxiPraticaDTO.getMorsicatura().getImmTet());
+            oldMorsicatura.setNote(maxiPraticaDTO.getMorsicatura().getNote());
+
+            if(maxiPraticaDTO.getProprietario()!=null) {
+                Optional<Persona> oldProprietario = personaRepository.getByCodFEquals(maxiPraticaDTO.getProprietario().getCodF());
+                Persona newProprietario = modelMapper.map(maxiPraticaDTO.getProprietario(),Persona.class);
+                if(oldProprietario.isPresent()){
+                    oldProprietario.ifPresent(item->{
+                        newProprietario.setProvvedimenti(item.getProvvedimenti());
+                        newProprietario.setMorsicature(item.getMorsicature());
+                        newProprietario.setContatti(item.getContatti());
+                        newProprietario.setPratiche(item.getPratiche());
+                    });
+                }else{
+                    newProprietario.addMorsicatura(oldMorsicatura);
+                    oldMorsicatura.setProprietario(newProprietario);
+                }
+            }else{
+                oldMorsicatura.setProprietario(null);
+            }
+            oldMorsicatura = morsicaturaRepository.save(oldMorsicatura);
+
+        }
+
+        List<Diagnosi> oldDiagnosiList = oldPratica.get().getDiagnosi();
+        List<Diagnosi> newDiagnosiList = new ArrayList<Diagnosi>();
+        maxiPraticaDTO.getDiagnosiList().forEach(diagnosiDTO -> {
+            Diagnosi newDiag = modelMapper.map(diagnosiDTO,Diagnosi.class);
+            newDiag.setPratica(oldPratica.get());
+            newDiagnosiList.add(newDiag);
+        });
+        if(!oldDiagnosiList.isEmpty()) {
+            if (Optional.ofNullable(maxiPraticaDTO.getDiagnosiList()).isEmpty()) throw new PraticaServiceException("Impossibile avere zero diagnosi");
+            oldDiagnosiList.forEach(oldDiagnosi->{
+                boolean flag =false;
+                for(Diagnosi newDiagnosi : newDiagnosiList){
+                    if(newDiagnosi.getId()==oldDiagnosi.getId()) {
+                        flag = true;
+                        oldDiagnosi.setTipo(newDiagnosi.getTipo());
+                        oldDiagnosi.setClasse(newDiagnosi.getClasse());
+                        oldDiagnosi.setRicovero(newDiagnosi.getRicovero());
+                        oldDiagnosi.setDottore(newDiagnosi.getDottore());
+                        oldDiagnosi.setDataPrimaDiagnosi(newDiagnosi.getDataPrimaDiagnosi());
+                        oldDiagnosi.setRisolta(newDiagnosi.isRisolta());
+                        oldDiagnosi.setDataRisoluzione(newDiagnosi.getDataRisoluzione());
+                        diagnosiRepository.save(oldDiagnosi);
+                    }
+                }
+                if(!flag){
+                    newPratica.removeDiagnosi(oldDiagnosi);
+                    diagnosiRepository.delete(oldDiagnosi);
+                }
+            });
+            newDiagnosiList.forEach(newDiagnosi->{
+                boolean flag =false;
+                for(Diagnosi oldDiagnosi : newDiagnosiList){
+                    if(newDiagnosi.getId()==oldDiagnosi.getId()) {
+                        flag = true;
+                    }
+                }
+                if(!flag){
+                    newPratica.setId(null);
+                    newPratica.addDiagnosi(newDiagnosi);
+                    newDiagnosi.setPratica(newPratica);
+                    diagnosiRepository.save(newDiagnosi);
+                }
+            });
+        };
+
+
+
+        List<Provvedimento> oldProvvedimenti = oldPratica.get().getProvvedimenti();
+        List<Provvedimento> newProvvedimenti =
+    }
+    */
 
     public long getNextPraticaId() {
         long year = LocalDate.now().getYear();

@@ -41,7 +41,7 @@ public class Pratica {
     public void addContatto(Contatto contatto){
         if(this.contatti==null)
             this.contatti=new ArrayList<>();
-        if(this.contatti.contains(contatto))
+        if(!this.contatti.contains(contatto))
             contatti.add(contatto);
     }
 
@@ -57,6 +57,27 @@ public class Pratica {
             this.diagnosi = new ArrayList<>();
         if(!this.diagnosi.contains(diagnosi))
             this.diagnosi.add(diagnosi);
+    }
+
+    public void removeContatto(Contatto contatto){
+        if(this.contatti==null)
+            this.contatti=new ArrayList<>();
+        if(this.contatti.contains(contatto))
+            contatti.remove(contatto);
+    }
+
+    public void removeProvvedimento(Provvedimento provvedimento){
+        if(this.provvedimenti == null)
+            this.provvedimenti=new ArrayList<>();
+        if(this.provvedimenti.contains(provvedimento))
+            provvedimenti.remove(provvedimento);
+    }
+
+    public void removeDiagnosi(Diagnosi diagnosi){
+        if(this.diagnosi==null)
+            this.diagnosi = new ArrayList<>();
+        if(this.diagnosi.contains(diagnosi))
+            this.diagnosi.remove(diagnosi);
     }
 
     public void setPaziente(Persona paziente){
