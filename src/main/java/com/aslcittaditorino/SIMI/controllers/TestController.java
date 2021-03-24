@@ -32,7 +32,6 @@ public class TestController {
 
     @GetMapping("/getAllPratiche")
     public List<MaxiPraticaDTO> getAllPratiche(){
-        System.out.println(praticaService.getAllPratiche());
         return praticaService.getAllPratiche();
     }
 

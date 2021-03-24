@@ -27,15 +27,15 @@ public class PersonaServiceImpl implements PersonaService {
     public String addPersona(PersonaDTO personaDTO) {
         System.out.println("eseguo salvataggio");
         Persona persona = modelMapper.map(personaDTO,Persona.class);
-        return personaRepository.save(persona).getCodF();
+        return personaRepository.save(persona).getCodf();
     }
 
     @Override
     public String updatePersona(PersonaDTO personaDTO) {
-        Optional<Persona> persona = personaRepository.getByCodFEquals(personaDTO.getCodF());
+        Optional<Persona> persona = personaRepository.getByCodfEquals(personaDTO.getCodF());
         if(persona.isEmpty()) throw new PersonaServiceException("Persona non presente");
 
-        persona.get().setCodF(personaDTO.getCodF());
+        persona.get().setCodf(personaDTO.getCodF());
         persona.get().setNome(personaDTO.getNome());
         persona.get().setCognome(personaDTO.getCognome());
         persona.get().setCellulare(personaDTO.getCellulare());
@@ -50,6 +50,6 @@ public class PersonaServiceImpl implements PersonaService {
         persona.get().setProfessione(personaDTO.getProfessione());
         persona.get().setCategoriaProfessionale(personaDTO.getCategoriaProfessionale());
 
-        return personaRepository.save(persona.get()).getCodF();
+        return personaRepository.save(persona.get()).getCodf();
     }
 }

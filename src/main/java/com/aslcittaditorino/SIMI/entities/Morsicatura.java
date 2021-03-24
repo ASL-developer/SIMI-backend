@@ -7,7 +7,7 @@ import java.util.Date;
 
 @Entity
 @Data
-@SequenceGenerator(initialValue = 1,name="idgen",sequenceName = "morsicaturaId",allocationSize = 1)
+@SequenceGenerator(initialValue = 1,name="idgen",sequenceName = "morsicaturaId")
 public class Morsicatura extends DataObject{
 
     private Date dataMorsicatura;

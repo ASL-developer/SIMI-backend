@@ -6,7 +6,7 @@ import javax.persistence.*;
 import java.util.Date;
 @Entity
 @Data
-@SequenceGenerator(initialValue = 1,name="idgen",sequenceName = "diagnosiId",allocationSize = 1)
+@SequenceGenerator(initialValue = 1,name="idgen",sequenceName = "diagnosiId")
 public class Diagnosi extends DataObject{
 
     private String tipo;

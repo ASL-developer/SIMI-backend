@@ -9,12 +9,12 @@ import java.util.List;
 
 @Entity
 @Data
-@SequenceGenerator(initialValue = 1, allocationSize = 1,name="idgen",sequenceName = "personaId")
+@SequenceGenerator(initialValue = 1,name="idgen",sequenceName = "personaId")
 
 public class Persona extends DataObject{
 
 
-    private String codF;
+    private String codf;
 
     private String nome;
     private String cognome;
