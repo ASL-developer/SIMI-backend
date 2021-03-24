@@ -12,3 +12,5 @@ buildNumber.properties
 
 .idea/
 /.mvn/
+
+simi-backend.iml

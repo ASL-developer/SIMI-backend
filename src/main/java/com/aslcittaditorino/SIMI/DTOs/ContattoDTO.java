@@ -13,7 +13,7 @@ import javax.persistence.ManyToOne;
 public class ContattoDTO {
 
     private Long id;
-    private String causale;
+    private String relazione;
     private Long hbsAg;
     private Long antiHBs;
     private Long antiHBc;

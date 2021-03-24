@@ -72,7 +72,7 @@ public class ContattoServiceImpl implements ContattoService{
         Optional<Contatto> contatto = contattoRepository.findById(contattoDTO.getId());
         if(contatto.isEmpty()) throw new ContattoServiceException("Contatto not found");
 
-        contatto.get().setCausale(contattoDTO.getCausale());
+        contatto.get().setRelazione(contattoDTO.getRelazione());
         contatto.get().setHbsAg(contattoDTO.getHbsAg());
         contatto.get().setAntiHBs(contattoDTO.getAntiHBs());
         contatto.get().setAntiHBc(contattoDTO.getAntiHBc());

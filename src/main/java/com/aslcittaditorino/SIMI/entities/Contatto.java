@@ -15,7 +15,7 @@ public class Contatto extends DataObject{
     private Pratica pratica;
     @ManyToOne
     private Persona persona;
-    private String causale;
+    private String relazione;
     private Long hbsAg;
     private Long antiHBs;
     private Long antiHBc;
