@@ -16,6 +16,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+
 public class PraticaServiceImpl implements PraticaService {
     @Autowired
     PersonaRepository personaRepository;
@@ -39,52 +40,58 @@ public class PraticaServiceImpl implements PraticaService {
     @Autowired
     PersonaService personaService;
 
-    public List<MaxiPraticaDTO> getAllPratiche(){
+    public MaxiPraticaDTO getMaxiPratica(Long id){
         System.out.println("started getAllPratiche elab");
-        return praticaRepository.findAll().stream().map(item->{
-            MaxiPraticaDTO tempDTO = new MaxiPraticaDTO();
-            tempDTO.setId(item.getId());
-            tempDTO.setDataSegnalazione(item.getDataSegnalazione());
-            tempDTO.setDataRicezione(item.getDataRicezione());
-            tempDTO.setStruttDenunciante(item.getStruttDenunciante());
-            tempDTO.setOperatore(item.getOperatore());
-            tempDTO.setStato(item.getStato());
-            System.out.println(tempDTO);
-            tempDTO.setPaziente(modelMapper.map(item.getPaziente(),PersonaDTO.class));
+        Optional<Pratica> pratica = praticaRepository.findById(id);
+        if(pratica.isEmpty()) throw new PraticaServiceException("Richiesto id non esistente");
 
+        MaxiPraticaDTO tempDTO = new MaxiPraticaDTO();
+        tempDTO.setId(pratica.get().getId());
+        tempDTO.setDataSegnalazione(pratica.get().getDataSegnalazione());
+        tempDTO.setDataRicezione(pratica.get().getDataRicezione());
+        tempDTO.setStruttDenunciante(pratica.get().getStruttDenunciante());
+        tempDTO.setOperatore(pratica.get().getOperatore());
+        tempDTO.setStato(pratica.get().getStato());
+        System.out.println(tempDTO);
+        tempDTO.setPaziente(modelMapper.map(pratica.get().getPaziente(),PersonaDTO.class));
 
+        tempDTO.setProvvedimenti(pratica.get().getProvvedimenti().stream().filter(provv-> {
+                return provv.getPersona().getCodF() == pratica.get().getPaziente().getCodF();
+            })
+            .map(prov->{return modelMapper.map(prov,ProvvedimentoDTO.class);})
+            .collect(Collectors.toList()));
 
-            if(!item.getContatti().isEmpty()){
-                tempDTO.setCorrelati(item.getContatti().stream().map(cont->{
-                    ContattoDTO contattoDTO = modelMapper.map(cont,ContattoDTO.class);
-                    List<ProvvedimentoDTO> provvedimenti = item.getProvvedimenti().stream().filter(prov->{
-                        return prov.getPersona() == cont.getPersona();
-                    }).map(prov-> {
-                        return modelMapper.map(prov, ProvvedimentoDTO.class);
-                    }).collect(Collectors.toList());
-                    PersonaDTO personaDTO = modelMapper.map(cont.getPersona(),PersonaDTO.class);
-                    CorrelatoDTO correlatoDTO = new CorrelatoDTO();
-                    correlatoDTO.setContatto(contattoDTO);
-                    correlatoDTO.setPaziente(personaDTO);
-                    correlatoDTO.setProvvedimenti(provvedimenti);
-                    return correlatoDTO;
-                }).collect(Collectors.toList()));
+        if(!pratica.get().getContatti().isEmpty()){
+            tempDTO.setCorrelati(pratica.get().getContatti().stream().map(cont->{
+                ContattoDTO contattoDTO = modelMapper.map(cont,ContattoDTO.class);
+                List<ProvvedimentoDTO> provvedimenti = pratica.get().getProvvedimenti().stream().filter(prov->{
+                    return prov.getPersona() == cont.getPersona();
+                }).map(prov-> {
+                    return modelMapper.map(prov, ProvvedimentoDTO.class);
+                }).collect(Collectors.toList());
+                PersonaDTO personaDTO = modelMapper.map(cont.getPersona(),PersonaDTO.class);
+                CorrelatoDTO correlatoDTO = new CorrelatoDTO();
+                correlatoDTO.setContatto(contattoDTO);
+                correlatoDTO.setPaziente(personaDTO);
+                correlatoDTO.setProvvedimenti(provvedimenti);
+                return correlatoDTO;
+            }).collect(Collectors.toList()));
+        }
+        if(!pratica.get().getDiagnosi().isEmpty()) {
+            tempDTO.setDiagnosiList(pratica.get().getDiagnosi().stream().map(diag -> {
+                return modelMapper.map(diag, DiagnosiDTO.class);
+            }).collect(Collectors.toList()));
+        }
+        if(pratica.get().getMorsicatura()!=null) {
+            tempDTO.setMorsicatura(modelMapper.map(pratica.get().getMorsicatura(), MorsicaturaDTO.class));
+        }
+        if(pratica.get().getMorsicatura()!=null) {
+            if(pratica.get().getMorsicatura().getProprietario()!=null) {
+                tempDTO.setProprietario(modelMapper.map(pratica.get().getMorsicatura().getProprietario(), PersonaDTO.class));
             }
-            if(!item.getDiagnosi().isEmpty()) {
-                tempDTO.setDiagnosiList(item.getDiagnosi().stream().map(diag -> {
-                    return modelMapper.map(diag, DiagnosiDTO.class);
-                }).collect(Collectors.toList()));
-            }
-            if(item.getMorsicatura()!=null) {
-                tempDTO.setMorsicatura(modelMapper.map(item.getMorsicatura(), MorsicaturaDTO.class));
-            }
-            if(item.getMorsicatura()!=null) {
-                if(item.getMorsicatura().getProprietario()!=null) {
-                    tempDTO.setProprietario(modelMapper.map(item.getMorsicatura().getProprietario(), PersonaDTO.class));
-                }
-            }
-            return tempDTO;
-        }).collect(Collectors.toList());
+        }
+        return tempDTO;
+
     }
 
     @Transactional
@@ -105,9 +112,11 @@ public class PraticaServiceImpl implements PraticaService {
         Optional<Persona> paziente=null;
 
         if(maxiPraticaDTO.getPaziente()!=null){
-            paziente = personaRepository.getByCodfEquals(maxiPraticaDTO.getPaziente().getCodF());
-            if(paziente.isPresent())
+            paziente = personaRepository.getByCodFEquals(maxiPraticaDTO.getPaziente().getCodF());
+            if(paziente.isPresent()) {
+                System.out.println("TROVATO PAZIENTE");
                 paziente = Optional.ofNullable(personaRepository.save(paziente.get()));
+            }
             else {
                 if(maxiPraticaDTO.getPaziente().getCodF().length()!=16) throw new PraticaServiceException("INSERITO DOICE FISCALE INVALIDO");
                 paziente = Optional.ofNullable(personaRepository.save(modelMapper.map(maxiPraticaDTO.getPaziente(), Persona.class)));
@@ -118,30 +127,35 @@ public class PraticaServiceImpl implements PraticaService {
             pratica = praticaRepository.save(pratica);
         }
         System.out.println("done paziente");
+
+
         Morsicatura morsicatura = null;
         if(maxiPraticaDTO.getMorsicatura()!=null) {
             morsicatura = morsicaturaRepository.save(modelMapper.map(maxiPraticaDTO.getMorsicatura(),Morsicatura.class));
-            pratica.setMorsicatura(morsicatura);
             morsicatura.setPratica(pratica);
             morsicaturaRepository.save(morsicatura);
+            pratica.setMorsicatura(morsicatura);
             pratica = praticaRepository.save(pratica);
+            Optional<Persona> proprietario = null;
+            if(maxiPraticaDTO.getProprietario()!=null){
+                proprietario = personaRepository.getByCodFEquals(maxiPraticaDTO.getProprietario().getCodF());
+                if(!proprietario.isPresent())
+                {
+                    proprietario = Optional.ofNullable(personaRepository.save(modelMapper.map(maxiPraticaDTO.getProprietario(),Persona.class)));
+                }
+                proprietario.get().addMorsicatura(pratica.getMorsicatura());
+                proprietario =Optional.ofNullable(personaRepository.save(proprietario.get()));
+                pratica.getMorsicatura().setProprietario(proprietario.get());
+                proprietario.get().addMorsicatura(pratica.getMorsicatura());
+                morsicaturaRepository.save(pratica.getMorsicatura());
+                praticaRepository.save(pratica);
+                personaRepository.save(proprietario.get());
+            }
         }
-        Persona proprietario = null;
-        if(maxiPraticaDTO.getProprietario()!=null){
-            proprietario = personaRepository.save(modelMapper.map(maxiPraticaDTO.getProprietario(),Persona.class));
-            pratica = praticaRepository.save(pratica);
-            proprietario =personaRepository.save(proprietario);
-            pratica.getMorsicatura().setProprietario(proprietario);
-            proprietario.addMorsicatura(pratica.getMorsicatura());
-            praticaRepository.save(pratica);
-            personaRepository.save(proprietario);
-        }
-
-
         System.out.println("acquired morsicatura");
 
+        List<DiagnosiDTO> listDiagnosi = maxiPraticaDTO.getDiagnosiList();
         if(maxiPraticaDTO.getDiagnosiList()!=null){
-            List<DiagnosiDTO> listDiagnosi = maxiPraticaDTO.getDiagnosiList();
             if(!listDiagnosi.isEmpty()) {
                 for (DiagnosiDTO diagnosiDTO : listDiagnosi) {
                     if(diagnosiDTO.getTipo()!="") {
@@ -154,53 +168,134 @@ public class PraticaServiceImpl implements PraticaService {
                 }
             }
         }
-
         System.out.println("acquired diagnosi");
         pratica = praticaRepository.save(pratica);
+
+        List<ProvvedimentoDTO> listProvvedimenti = maxiPraticaDTO.getProvvedimenti();
+        if(listProvvedimenti != null && !listProvvedimenti.isEmpty()){
+            for(ProvvedimentoDTO provvedimentoDTO : listProvvedimenti){
+                Provvedimento provvedimento = modelMapper.map(provvedimentoDTO,Provvedimento.class);
+                provvedimento.setPersona(pratica.getPaziente());
+                pratica.getPaziente().addProvvedimento(provvedimento);
+                personaRepository.save(pratica.getPaziente());
+                provvedimento.setPratica(pratica);
+                provvedimento = provvedimentoRepository.save(provvedimento);
+                pratica.addProvvedimento(provvedimento);
+                pratica=praticaRepository.save(pratica);
+            };
+        }
+        System.out.println("acquired provvedimenti");
 
         List<CorrelatoDTO> listCorrelati = maxiPraticaDTO.getCorrelati();
         if(listCorrelati!=null){
             for (CorrelatoDTO correlatoDTO : listCorrelati) {
                 System.out.println(correlatoDTO);
-                Persona persona = modelMapper.map(correlatoDTO.getPaziente(), Persona.class);
+                Optional<Persona> persona = personaRepository.getByCodFEquals(correlatoDTO.getPaziente().getCodF());
+                if (!persona.isPresent()) {
+                    persona = Optional.ofNullable(modelMapper.map(correlatoDTO.getPaziente(), Persona.class));
+                    persona.get().setId(null);
+                }
                 Contatto contatto = modelMapper.map(correlatoDTO.getContatto(), Contatto.class);
-                System.out.println(persona);
-                System.out.println(contatto);
                 contatto.setId(null);
-                persona.setId(null);
-                persona = personaRepository.save(persona);
-                contatto = contattoRepository.save(contatto);
-                persona.addContatto(contatto);
-                pratica.addContatto(contatto);
-                contatto.setPratica(pratica);
-                contatto.setPersona(persona);
 
-                List<ProvvedimentoDTO> listProvvedimenti = correlatoDTO.getProvvedimenti();
-                if(listProvvedimenti!=null) {
-                    for (ProvvedimentoDTO provvedimentoDTO : listProvvedimenti) {
+                persona = Optional.ofNullable(personaRepository.save(persona.get()));
+                contatto = contattoRepository.save(contatto);
+                persona.get().addContatto(contatto);
+                contatto.setPratica(pratica);
+                contatto.setPersona(persona.get());
+
+                List<ProvvedimentoDTO> listProvvedimentiCorr = correlatoDTO.getProvvedimenti();
+                if (listProvvedimenti != null) {
+                    for (ProvvedimentoDTO provvedimentoDTO : listProvvedimentiCorr) {
                         Provvedimento provvedimento = modelMapper.map(provvedimentoDTO, Provvedimento.class);
                         provvedimento.setId(null);
-                        provvedimento.setPersona(persona);
+                        provvedimento.setPersona(persona.get());
                         provvedimento.setPratica(pratica);
                         pratica.addProvvedimento(provvedimento);
-                        persona.addProvvedimento(provvedimento);
+                        persona.get().addProvvedimento(provvedimento);
+                        personaRepository.save(persona.get());
                         provvedimentoRepository.save(provvedimento);
                     }
                 }
-                personaRepository.save(persona);
+                personaRepository.save(persona.get());
                 contattoRepository.save(contatto);
-            }
-            ;
+                pratica.addContatto(contatto);
+                pratica = praticaRepository.save(pratica);
+            };
         }
+        System.out.println("acquired correlati");
 
-
-        System.out.println("acquired provvedimenti");
-
-        return praticaRepository.save(pratica).getId();
+        praticaRepository.save(pratica);
+        return pratica.getId();
 
     }
 
-    /*@Override
+
+    public List<PraticaSummaryDTO> getAllSummaries(){
+        List<PraticaSummaryDTO> praticaSummaryDTOS = new ArrayList<>();
+        praticaRepository.findAll().forEach(item->{
+            List<String> nomi = new ArrayList<>();
+            List<String> cognomi = new ArrayList<>();
+            List<String> codF = new ArrayList<>();
+            String diagnosi = new String("");
+
+            long numProvvedimenti = 0l;
+            long numProvvedimentiCorrelati =0l;
+            nomi.add(item.getPaziente().getNome());
+            cognomi.add(item.getPaziente().getCognome());
+            codF.add(item.getPaziente().getCodF());
+            if(item.getMorsicatura()!= null){
+                diagnosi = "Morsicatura";
+                if(item.getMorsicatura().getProprietario() != null) {
+                    nomi.add(item.getMorsicatura().getProprietario().getNome());
+                    cognomi.add(item.getMorsicatura().getProprietario().getCognome());
+                    codF.add(item.getMorsicatura().getProprietario().getCodF());
+                }
+            }
+            if(!item.getDiagnosi().isEmpty()){
+                for(Diagnosi diag : item.getDiagnosi()){
+                    if(diagnosi.compareTo("")!=0)
+                        diagnosi = diagnosi + " - "+ diag.getTipo();
+                    else
+                        diagnosi = diag.getTipo();
+                };
+            }
+            if(item.getContatti()!=null && !item.getContatti().isEmpty()){
+                for(Contatto cont : item.getContatti()){
+                    nomi.add(cont.getPersona().getNome());
+                    cognomi.add(cont.getPersona().getCognome());
+                    codF.add(cont.getPersona().getCodF());
+                }
+            }
+            if(item.getProvvedimenti()!= null && !item.getProvvedimenti().isEmpty()){
+                numProvvedimenti = item.getProvvedimenti()
+                        .stream()
+                        .filter(prov->{
+                            System.out.println(prov.getPersona().getCodF());
+                            return prov.getPersona().getCodF() == item.getPaziente().getCodF();
+                        })
+                        .count();
+                numProvvedimentiCorrelati = item.getProvvedimenti().size() - numProvvedimenti;
+            }
+            PraticaSummaryDTO praticaSummaryDTO = new PraticaSummaryDTO();
+            praticaSummaryDTO.setId(item.getId());
+            praticaSummaryDTO.setDataSegnalazione(item.getDataSegnalazione());
+            praticaSummaryDTO.setDataRicezione(item.getDataRicezione());
+            praticaSummaryDTO.setStruttDenunciante(item.getStruttDenunciante());
+            praticaSummaryDTO.setOperatore(item.getOperatore());
+            praticaSummaryDTO.setStato(item.getStato());
+            praticaSummaryDTO.setDiagnosi(diagnosi);
+            praticaSummaryDTO.setNomi(nomi);
+            praticaSummaryDTO.setCognomi(cognomi);
+            praticaSummaryDTO.setCodF(codF);
+            praticaSummaryDTO.setNumProvvedimenti(numProvvedimenti);
+            praticaSummaryDTO.setNumProvvedimentiCorrelati(numProvvedimentiCorrelati);
+            praticaSummaryDTOS.add(praticaSummaryDTO);
+        });
+        return praticaSummaryDTOS;
+    }
+    /*
+    @Override
     @Transactional
     public long updateMaxiPratica(MaxiPraticaDTO maxiPraticaDTO) {
         Optional<Pratica> oldPratica=praticaRepository.findById(maxiPraticaDTO.getId());
@@ -295,12 +390,55 @@ public class PraticaServiceImpl implements PraticaService {
             });
         };
 
+        System.out.println("saved provvedimenti");
 
 
         List<Provvedimento> oldProvvedimenti = oldPratica.get().getProvvedimenti();
-        List<Provvedimento> newProvvedimenti =
-    }
-    */
+        List<Provvedimento> newProvvedimenti = new ArrayList<Provvedimento>();
+
+        maxiPraticaDTO.getProvvedimenti().forEach(provvedimentoDTO->{
+            newProvvedimenti.add(modelMapper.map(provvedimentoDTO,Provvedimento.class));
+        })
+
+        List<Persona> newPersone = new ArrayList<Persona>();
+        List<Contatto> newContatti = new ArrayList<Contatto>();
+        maxiPraticaDTO.getCorrelati().forEach(correlatoDTO->{
+            newPersona.add(modelMapper.map(correlatoDTO.getPaziente(),Persona.class));
+            newContatti.add(modelMapper.map(correlatoDTO.getContatto(),Contatto.class));
+
+        })
+
+        oldProvvedimenti.forEach(provvedimento->{
+            boolean flag = false;
+            for(Provvedimento newProv : newProvvedimenti){
+                if(newProv.getId()==provvedimento.getId()){
+                    flag = true;
+                }
+
+            }
+            if(!flag){
+                provvedimento.getPratica().removeProvvedimento(provvedimento);
+                provvedimento.getPersona().removeProvvedimento(provvedimento);
+                personaRepository.save(provvedimento.getPersona());
+                praticaRepository.save(provvedimento.getPratica());
+                provvedimentoRepository.delete(provvedimento);
+            }
+        })
+
+        newProvvedimenti.forEach(provvedimento->{
+            boolean flag = false;
+            for(Provvedimento oldProv : oldProvvedimenti){
+                if(oldProv.getId() == provvedimento.getId())
+                {
+                    flag = true;
+                }
+            }
+            if(!flag){
+                provvedimento.setPratica(pratica)
+            }
+        })
+    } */
+
 
     public long getNextPraticaId() {
         long year = LocalDate.now().getYear();
@@ -386,7 +524,7 @@ public class PraticaServiceImpl implements PraticaService {
         if(!pratica.isPresent())
             throw new PraticaServiceException("Pratica Not Found");
 
-        Optional<Persona> persona = personaRepository.getByCodfEquals(codf);
+        Optional<Persona> persona = personaRepository.getByCodFEquals(codf);
         if(!persona.isPresent())
             throw new PraticaServiceException("Persona Not Found");
 

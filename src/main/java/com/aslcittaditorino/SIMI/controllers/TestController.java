@@ -30,15 +30,20 @@ public class TestController {
     ContattoService contattoService;
 
 
-    @GetMapping("/getAllPratiche")
-    public List<MaxiPraticaDTO> getAllPratiche(){
-        return praticaService.getAllPratiche();
+    @GetMapping("/getMaxiPratica")
+    public MaxiPraticaDTO getMaxiPratica(@RequestParam(name="id")Long id){
+        return praticaService.getMaxiPratica(id);
     }
 
     @PostMapping("/addMaxiPratica")
     public Long addMaxiPratica(@RequestBody MaxiPraticaDTO maxiPraticaDTO){
         System.out.println("Received addMaxiPratica");
         return praticaService.addMaxiPratica(maxiPraticaDTO);
+    }
+
+    @GetMapping("/getAllSummaries")
+    public List<PraticaSummaryDTO> getAllSummaries(){
+        return praticaService.getAllSummaries();
     }
 
     @GetMapping("/getNextPraticaId")
