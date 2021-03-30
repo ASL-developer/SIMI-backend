@@ -28,11 +28,15 @@ public class JwtTokenFilter extends GenericFilterBean {
             String token = jwtTokenProvider.resolveToken((HttpServletRequest) req);
             try {
                 if (token != null && jwtTokenProvider.validateToken(token)) {
+                    System.out.println("token validated");
                     Authentication auth = jwtTokenProvider.getAuthentication(token);
 
                     if (auth != null) {
                         SecurityContextHolder.getContext().setAuthentication(auth);
                     }
+                }
+                else{
+                    System.out.println(token);
                 }
             }catch (JwtException e){
                 ((HttpServletResponse) res).setStatus(HttpStatus.UNAUTHORIZED.value());

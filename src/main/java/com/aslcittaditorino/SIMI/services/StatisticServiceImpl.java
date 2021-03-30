@@ -26,6 +26,7 @@ public class StatisticServiceImpl implements StatisticService {
 
     @Override
     public void sessionSaver(String token, String currentUsername) {
+
         if (!sessionRepo.existsById(currentUsername)) {
             Session session = new Session();
             session.setUsername(currentUsername);
