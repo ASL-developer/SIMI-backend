@@ -56,7 +56,7 @@ public class PraticaServiceImpl implements PraticaService {
         tempDTO.setPaziente(modelMapper.map(pratica.get().getPaziente(),PersonaDTO.class));
 
         tempDTO.setProvvedimenti(pratica.get().getProvvedimenti().stream().filter(provv-> {
-                return provv.getPersona().getCodF() == pratica.get().getPaziente().getCodF();
+                return provv.getPersona().getId() == pratica.get().getPaziente().getId();
             })
             .map(prov->{return modelMapper.map(prov,ProvvedimentoDTO.class);})
             .collect(Collectors.toList()));
@@ -112,13 +112,31 @@ public class PraticaServiceImpl implements PraticaService {
         Optional<Persona> paziente=null;
 
         if(maxiPraticaDTO.getPaziente()!=null){
-            paziente = personaRepository.getByCodFEquals(maxiPraticaDTO.getPaziente().getCodF());
+            if(maxiPraticaDTO.getPazienteId()!=null)
+                paziente = personaRepository.findById(maxiPraticaDTO.getPazienteId());
+            else if(maxiPraticaDTO.getPaziente().getCodF()!=null && maxiPraticaDTO.getPaziente().getCodF()!="")
+                paziente = personaRepository.getByCodFEquals(maxiPraticaDTO.getPaziente().getCodF());
             if(paziente.isPresent()) {
                 System.out.println("TROVATO PAZIENTE");
+                paziente.get().setCodF(maxiPraticaDTO.getPaziente().getCodF().toUpperCase());
+                paziente.get().setNome(maxiPraticaDTO.getPaziente().getNome().toUpperCase());
+                paziente.get().setCognome(maxiPraticaDTO.getPaziente().getCognome().toUpperCase());
+                paziente.get().setCellulare(maxiPraticaDTO.getPaziente().getCellulare());
+                paziente.get().setDataDiNascita(maxiPraticaDTO.getPaziente().getDataDiNascita());
+                paziente.get().setSesso(maxiPraticaDTO.getPaziente().getSesso());
+                paziente.get().setNazionalita(maxiPraticaDTO.getPaziente().getNazionalita());
+                paziente.get().setLuogoDiNascita(maxiPraticaDTO.getPaziente().getLuogoDiNascita());
+                paziente.get().setResidenza(maxiPraticaDTO.getPaziente().getResidenza());
+                paziente.get().setComuneResidenza(maxiPraticaDTO.getPaziente().getComuneResidenza());
+                paziente.get().setDomicilio(maxiPraticaDTO.getPaziente().getDomicilio());
+                paziente.get().setComuneDomicilio(maxiPraticaDTO.getPaziente().getComuneDomicilio());
+                paziente.get().setProfessione(maxiPraticaDTO.getPaziente().getProfessione());
+                paziente.get().setCategoriaProfessionale(maxiPraticaDTO.getPaziente().getCategoriaProfessionale());
+
                 paziente = Optional.ofNullable(personaRepository.save(paziente.get()));
             }
             else {
-                if(maxiPraticaDTO.getPaziente().getCodF().length()!=16) throw new PraticaServiceException("INSERITO DOICE FISCALE INVALIDO");
+                //if(maxiPraticaDTO.getPaziente().getCodF().length()!=16) throw new PraticaServiceException("INSERITO DOICE FISCALE INVALIDO");
                 paziente = Optional.ofNullable(personaRepository.save(modelMapper.map(maxiPraticaDTO.getPaziente(), Persona.class)));
             }
             pratica.setPaziente(paziente.get());
@@ -138,9 +156,29 @@ public class PraticaServiceImpl implements PraticaService {
             pratica = praticaRepository.save(pratica);
             Optional<Persona> proprietario = null;
             if(maxiPraticaDTO.getProprietario()!=null){
-                proprietario = personaRepository.getByCodFEquals(maxiPraticaDTO.getProprietario().getCodF());
+                if(maxiPraticaDTO.getProprietarioId()!=null)
+                    proprietario=personaRepository.findById(maxiPraticaDTO.getProprietarioId());
+                else if(maxiPraticaDTO.getProprietario().getCodF()!=null &&
+                        maxiPraticaDTO.getProprietario().getCodF()!= "")
+                    proprietario = personaRepository.getByCodFEquals(maxiPraticaDTO.getProprietario().getCodF());
+
                 if(!proprietario.isPresent())
                 {
+                    proprietario.get().setCodF(maxiPraticaDTO.getProprietario().getCodF().toUpperCase());
+                    proprietario.get().setNome(maxiPraticaDTO.getProprietario().getNome().toUpperCase());
+                    proprietario.get().setCognome(maxiPraticaDTO.getProprietario().getCognome().toUpperCase());
+                    proprietario.get().setCellulare(maxiPraticaDTO.getProprietario().getCellulare());
+                    proprietario.get().setDataDiNascita(maxiPraticaDTO.getProprietario().getDataDiNascita());
+                    proprietario.get().setSesso(maxiPraticaDTO.getProprietario().getSesso());
+                    proprietario.get().setNazionalita(maxiPraticaDTO.getProprietario().getNazionalita());
+                    proprietario.get().setLuogoDiNascita(maxiPraticaDTO.getProprietario().getLuogoDiNascita());
+                    proprietario.get().setResidenza(maxiPraticaDTO.getProprietario().getResidenza());
+                    proprietario.get().setComuneResidenza(maxiPraticaDTO.getProprietario().getComuneResidenza());
+                    proprietario.get().setDomicilio(maxiPraticaDTO.getProprietario().getDomicilio());
+                    proprietario.get().setComuneDomicilio(maxiPraticaDTO.getProprietario().getComuneDomicilio());
+                    proprietario.get().setProfessione(maxiPraticaDTO.getProprietario().getProfessione());
+                    proprietario.get().setCategoriaProfessionale(maxiPraticaDTO.getProprietario().getCategoriaProfessionale());
+
                     proprietario = Optional.ofNullable(personaRepository.save(modelMapper.map(maxiPraticaDTO.getProprietario(),Persona.class)));
                 }
                 proprietario.get().addMorsicatura(pratica.getMorsicatura());
@@ -190,10 +228,11 @@ public class PraticaServiceImpl implements PraticaService {
         if(listCorrelati!=null){
             for (CorrelatoDTO correlatoDTO : listCorrelati) {
                 System.out.println(correlatoDTO);
-                Optional<Persona> persona = personaRepository.getByCodFEquals(correlatoDTO.getPaziente().getCodF());
+                Optional<Persona> persona = personaRepository.findById(correlatoDTO.getPaziente().getId());
                 if (!persona.isPresent()) {
-                    persona = Optional.ofNullable(modelMapper.map(correlatoDTO.getPaziente(), Persona.class));
-                    persona.get().setId(null);
+                    throw new PraticaServiceException("PARENTE NON TROVATO!!!");
+                    /*persona = Optional.ofNullable(modelMapper.map(correlatoDTO.getPaziente(), Persona.class));
+                    persona.get().setId(null);*/
                 }
                 Contatto contatto = modelMapper.map(correlatoDTO.getContatto(), Contatto.class);
                 contatto.setId(null);
@@ -294,6 +333,11 @@ public class PraticaServiceImpl implements PraticaService {
         });
         return praticaSummaryDTOS;
     }
+
+    public List<String> getAllHospitals(){
+        return praticaRepository.getAllHospitals();
+    }
+
     /*
     @Override
     @Transactional

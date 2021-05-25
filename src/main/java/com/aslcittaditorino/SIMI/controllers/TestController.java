@@ -41,6 +41,11 @@ public class TestController {
         return praticaService.addMaxiPratica(maxiPraticaDTO);
     }
 
+    @GetMapping("/getAllHospitals")
+    public List<String> getAllHospitals(){
+        return praticaService.getAllHospitals();
+    }
+
     @GetMapping("/getAllSummaries")
     public List<PraticaSummaryDTO> getAllSummaries(){
         return praticaService.getAllSummaries();
@@ -52,9 +57,15 @@ public class TestController {
     }
 
     @PostMapping("/addPersona")
-    public String addPersona(@RequestBody PersonaDTO personaDTO){
+    public Long addPersona(@RequestBody PersonaDTO personaDTO){
         System.out.println("REQUEST:add persona");
         return personaService.addPersona(personaDTO);
+    }
+
+    @GetMapping("/getAllPersone")
+    public List<PersonaDTO> getAllPersone(){
+        System.out.println("REQUEST:get all persone");
+        return personaService.getAllPersone();
     }
 
     @PostMapping("/addPratica")

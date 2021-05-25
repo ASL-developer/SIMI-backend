@@ -12,7 +12,9 @@ public interface PersonaService {
 
     public PersonaDTO getPersonaByCodf(String codf);
 
-    public String addPersona(PersonaDTO persona);
+    public List<PersonaDTO> getAllPersone();
+
+    public Long addPersona(PersonaDTO persona);
 
     public String updatePersona(PersonaDTO persona);
 

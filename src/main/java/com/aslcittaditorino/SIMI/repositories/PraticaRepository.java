@@ -18,4 +18,6 @@ public interface PraticaRepository extends JpaRepository<Pratica,Long> {
     @Query(value = "select max(id) from pratica where id like :year%",nativeQuery = true)
     Optional<Long> findNextIdByYear(@Param("year")String year);
 
+    @Query(value= "select distinct strutt_denunciante from pratica",nativeQuery = true)
+    List<String> getAllHospitals();
 }

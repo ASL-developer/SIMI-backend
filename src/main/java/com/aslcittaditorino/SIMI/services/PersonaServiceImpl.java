@@ -8,7 +8,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PersonaServiceImpl implements PersonaService {
@@ -24,10 +26,20 @@ public class PersonaServiceImpl implements PersonaService {
     }
 
     @Override
-    public String addPersona(PersonaDTO personaDTO) {
+    public List<PersonaDTO> getAllPersone() {
+        if(!personaRepository.findAll().isEmpty()) {
+            return personaRepository.findAll().stream().map(item->{
+                return modelMapper.map(item,PersonaDTO.class);
+            }).collect(Collectors.toList());
+        }
+        return null;
+    }
+
+    @Override
+    public Long addPersona(PersonaDTO personaDTO) {
         System.out.println("eseguo salvataggio");
         Persona persona = modelMapper.map(personaDTO,Persona.class);
-        return personaRepository.save(persona).getCodF();
+        return personaRepository.save(persona).getId();
     }
 
     @Override

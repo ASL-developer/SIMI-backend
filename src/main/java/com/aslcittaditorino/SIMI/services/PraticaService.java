@@ -25,6 +25,8 @@ public interface PraticaService {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public PraticaDTO getPratica(Long id);
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    public List<String> getAllHospitals();
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public long updatePratica(PraticaDTO pratica);
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public boolean addContattoToPratica(Long idPratica,Long idContatto);

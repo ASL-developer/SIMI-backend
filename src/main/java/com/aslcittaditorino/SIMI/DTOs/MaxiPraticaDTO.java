@@ -16,10 +16,12 @@ public class MaxiPraticaDTO {
     private String stato;
 
     private List<ProvvedimentoDTO> provvedimenti;
+    private Long pazienteId;
     private PersonaDTO paziente;
     private List<CorrelatoDTO> correlati;
     private List <DiagnosiDTO> diagnosiList;
     private MorsicaturaDTO morsicatura;
+    private Long proprietarioId;
     private PersonaDTO proprietario;
 
 }
