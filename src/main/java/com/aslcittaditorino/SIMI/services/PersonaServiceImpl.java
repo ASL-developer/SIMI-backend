@@ -37,12 +37,11 @@ public class PersonaServiceImpl implements PersonaService {
 
     @Override
     public Long addPersona(PersonaDTO personaDTO) {
-        System.out.println("eseguo salvataggio");
-        Persona persona = modelMapper.map(personaDTO,Persona.class);
-        return personaRepository.save(persona).getId();
+        /* validatePersona(personaDTO) */
+        return null;
     }
 
-    @Override
+    /*@Override
     public String updatePersona(PersonaDTO personaDTO) {
         Optional<Persona> persona = personaRepository.getByCodFEquals(personaDTO.getCodF());
         if(persona.isEmpty()) throw new PersonaServiceException("Persona non presente");
@@ -63,5 +62,5 @@ public class PersonaServiceImpl implements PersonaService {
         persona.get().setCategoriaProfessionale(personaDTO.getCategoriaProfessionale());
 
         return personaRepository.save(persona.get()).getCodF();
-    }
+    }*/
 }

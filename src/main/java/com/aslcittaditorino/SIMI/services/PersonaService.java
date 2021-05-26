@@ -16,7 +16,7 @@ public interface PersonaService {
 
     public Long addPersona(PersonaDTO persona);
 
-    public String updatePersona(PersonaDTO persona);
+    //public String updatePersona(PersonaDTO persona);
 
     //public List<ContattoDTO> getContattiForPersona(String codf);
 
